@@ -1,0 +1,46 @@
+:root {
+  --color-background: #222831;
+  --color-foreground: #f2eae3;
+  --color-block-normal: #36404e;
+  --color-block-active: #60728b;
+  --color-primary: #8fdbd6;
+  --color-primary-dimmed: #689c99;
+  --color-secondary: #ffc876;
+  --color-secondary-dimmed: #c3934b;
+
+  --letter-block-height: 32px;
+  --letter-block-gap: 8px;
+  --key-size: 48px;
+  --key-gap: 4px;
+}
+
+.App {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 48px;
+  font-family: "Roboto Mono", sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  padding: 64px 128px;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+button {
+  padding: 0;
+  margin: 0;
+  font-size: 0;
+  cursor: pointer;
+  background: none;
+  outline: none;
+  border: none;
+  color: none;
+}

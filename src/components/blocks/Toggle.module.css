@@ -1,0 +1,17 @@
+.toggle {
+  display: flex;
+  gap: 12px;
+  font-size: 0;
+}
+
+.button {
+  font-size: 14px;
+  font-family: Inter, sans-serif;
+  letter-spacing: 0.25px;
+  color: var(--color-block-active);
+  transition: color 0.15s ease-in-out;
+}
+
+.active {
+  color: var(--color-primary);
+}

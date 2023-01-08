@@ -1,0 +1,36 @@
+.iconButton {
+  color: var(--color-block-active);
+}
+
+.iconButton:hover {
+  color: var(--color-secondary);
+}
+
+.isDisabled {
+  cursor: not-allowed;
+  color: var(--color-block-normal);
+}
+
+.isActive {
+  color: var(--color-primary);
+}
+
+.isActive:hover {
+  color: var(--color-primary);
+}
+
+.isActive.isDisabled {
+  color: var(--color-primary-dimmed);
+}
+
+.isInactive {
+  color: var(--color-secondary);
+}
+
+.isInactive:hover {
+  color: var(--color-secondary);
+}
+
+.isInactive.isDisabled {
+  color: var(--color-secondary-dimmed);
+}

@@ -1,0 +1,46 @@
+.letterBlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  text-align: center;
+  font-size: 19px;
+  line-height: 32px;
+  font-weight: bold;
+  font-family: Inter, sans-serif;
+  color: var(--color-foreground);
+}
+
+.left {
+  color: var(--color-primary);
+}
+
+.right {
+  color: var(--color-secondary);
+}
+
+.alt {
+  font-size: 0;
+}
+
+.blocks {
+  display: flex;
+  gap: 4px;
+}
+
+.block {
+  width: 24px;
+  height: var(--letter-block-height);
+  border-radius: 2px;
+  background-color: var(--color-block-normal);
+}
+
+.active {
+  background-color: var(--color-block-active);
+}

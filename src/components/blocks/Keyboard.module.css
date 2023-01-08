@@ -1,0 +1,53 @@
+.key {
+  width: var(--key-size);
+  height: var(--key-size);
+  border-radius: 8px;
+  border: 2px solid var(--color-block-active);
+}
+
+.isActive {
+  background-color: var(--color-block-normal);
+}
+
+.isSecondary {
+  border: 2px solid var(--color-secondary);
+}
+
+.isSecondary.isActive {
+  background-color: var(--color-secondary-dimmed);
+}
+
+.keyboard {
+  display: flex;
+  gap: 64px;
+}
+
+.left,
+.right {
+  display: flex;
+  gap: var(--key-gap);
+}
+
+.thumb {
+  position: relative;
+  padding-top: calc(2 * (var(--key-size) + var(--key-gap)));
+}
+
+.icon {
+  position: absolute;
+  bottom: calc(var(--key-size) / 2 - 16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+  width: 32px;
+  height: 32px;
+}
+
+.iconLeft {
+  left: calc(-1 * var(--key-size) / 2 - 16px - var(--key-gap));
+}
+
+.iconRight {
+  right: calc(-1 * var(--key-size) / 2 - 16px - var(--key-gap));
+}

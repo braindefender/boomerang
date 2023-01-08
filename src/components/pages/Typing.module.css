@@ -1,0 +1,102 @@
+.typing {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+  padding-left: 48px;
+  width: 1220px;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left,
+.right {
+  display: flex;
+  gap: 12px;
+}
+
+/* TODO:STYLES Вынести в reset.css */
+
+.refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: var(--color-primary);
+  transition: transform 0.25s ease-in-out;
+}
+
+.refresh:hover {
+  background-color: var(--color-block-normal);
+}
+
+.refresh:active {
+  color: var(--color-primary-dimmed);
+  transform: scale(0.95);
+}
+
+.icon {
+  transition: transform 0.25s ease-in-out;
+}
+
+.icon.rotate {
+  transform: rotate(180deg);
+}
+
+.texts {
+  position: relative;
+  display: flex;
+}
+
+.text {
+  display: flex;
+  align-items: start;
+  flex-wrap: wrap;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  line-height: 28px;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.word {
+  display: inline-block;
+}
+
+.word::after {
+  content: " ";
+}
+
+.original {
+  color: var(--color-block-active);
+}
+
+.correct {
+  color: var(--color-primary);
+}
+
+.errors {
+  color: var(--color-secondary);
+}
+
+.inputText {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.5);
+  font-family: inherit;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  border: none;
+  resize: none;
+}
