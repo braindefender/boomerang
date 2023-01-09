@@ -1,15 +1,24 @@
 .key {
+  display: flex;
+  justify-content: center;
+  line-height: 42px;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  text-transform: uppercase;
   width: var(--key-size);
   height: var(--key-size);
   border-radius: 8px;
-  border: 2px solid var(--color-block-active);
+  color: var(--color-primary);
+  border: 2px solid var(--color-block-normal);
 }
 
 .isActive {
+  border: 2px solid var(--color-block-active);
   background-color: var(--color-block-normal);
 }
 
 .isSecondary {
+  color: var(--color-secondary);
   border: 2px solid var(--color-secondary);
 }
 
@@ -22,10 +31,13 @@
   gap: 64px;
 }
 
-.left,
-.right {
+.half {
   display: flex;
   gap: var(--key-gap);
+}
+
+.reversed {
+  flex-flow: row-reverse;
 }
 
 .thumb {

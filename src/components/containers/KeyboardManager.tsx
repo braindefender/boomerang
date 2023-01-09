@@ -9,17 +9,29 @@ import {
   onCleanup,
   Signal,
 } from "solid-js";
+import { createStore, SetStoreFunction } from "solid-js/store";
 import { dictionary } from "../../data/dictionary";
 import { currentHand, setCurrentHand } from "../../data/hands";
+import {
+  isKeymapBeingEdited,
+  keymap,
+  keyToEdit,
+  setKeymap,
+} from "../../data/keymap";
 import { settings } from "../../data/settings";
-import { LeftRight, LeftRightRecord } from "../../types/util";
-import { KeyStates, Keyboard } from "../blocks/Keyboard";
+import {
+  KeysData,
+  KeysState,
+  KeysSymbols,
+  LeftRightRecord,
+} from "../../types/util";
+import { Keyboard } from "../blocks/Keyboard";
 import { Typing } from "../pages/Typing";
 import styles from "./KeyboardManager.module.css";
 
-export type KeyboardState = LeftRightRecord<KeyStates>;
+export type KeyboardState = LeftRightRecord<KeysState>;
 
-const defaultKeyState = {
+const defaultKeyState: KeysState = {
   thumb: false,
   index: false,
   middle: false,
@@ -29,7 +41,7 @@ const defaultKeyState = {
 
 export const KeyboardManager: Component = () => {
   const [inputText, setInputText] = createSignal("");
-  const [activeKeys, setActiveKeys] = createSignal<KeyboardState>({
+  const [keyStates, setKeyStates] = createSignal<KeyboardState>({
     left: defaultKeyState,
     right: defaultKeyState,
   });
@@ -38,12 +50,12 @@ export const KeyboardManager: Component = () => {
     <div
       class={styles.keyboardManager}
       use:keyboardEvents={{
-        keys: [activeKeys, setActiveKeys],
+        keys: [keyStates, setKeyStates],
         input: [inputText, setInputText],
       }}
     >
       <Typing inputText={inputText()} setInputText={setInputText} />
-      <Keyboard left={activeKeys().left} right={activeKeys().right} />
+      <Keyboard states={keyStates()} symbols={keymap} />
     </div>
   );
 };
@@ -67,13 +79,13 @@ export const keyboardEvents = (
   }>
 ) => {
   const { keys, input } = value();
-  const [activeKeys, setActiveKeys] = keys;
+  const [keyStates, setKeyStates] = keys;
   const [inputText, setInputText] = input;
 
-  const getSymbol = (states: KeyStates) => {
-    const pattern = getPatternFromKeyStates(states);
+  const getSymbol = (state: KeysState) => {
+    const pattern = getPatternFromKeyState(state);
     const group = dictionary.find((item) => item[0] === pattern);
-    const symbol = states.thumb ? group?.[2] : group?.[1];
+    const symbol = state.thumb ? group?.[2] : group?.[1];
     return symbol ?? " ";
   };
 
@@ -93,15 +105,15 @@ export const keyboardEvents = (
 
   const makeScan = createMemo(() =>
     throttle(() => {
-      let watchFor: KeyStates[] = [];
+      let watchFor: KeysData<boolean>[] = [];
 
       if (settings.leftRightBoth === "both") {
         if (settings.shouldSwitchHands) {
-          watchFor = [activeKeys()[currentHand()]];
+          watchFor = [keyStates()[currentHand()]];
         }
-        watchFor = [activeKeys().left, activeKeys().right];
+        watchFor = [keyStates().left, keyStates().right];
       } else {
-        watchFor = [activeKeys()[settings.leftRightBoth]];
+        watchFor = [keyStates()[settings.leftRightBoth]];
       }
 
       watchFor.forEach((part) =>
@@ -113,7 +125,7 @@ export const keyboardEvents = (
   );
 
   createEffect(
-    on(activeKeys, () => {
+    on(keyStates, () => {
       makeScan()();
     })
   );
@@ -126,15 +138,27 @@ export const keyboardEvents = (
   );
 
   const onKeyChange = (e: KeyboardEvent) => {
-    const mapping = getKeyMapping(e.key);
     const isPressed = e.type === "keydown";
+
+    if (isKeymapBeingEdited()) {
+      const key = keyToEdit();
+      if (isPressed && key !== undefined) {
+        console.log("test", e.key);
+        setKeymap(key.half, key.key, e.key);
+        console.log("pes", keymap.right.index);
+      }
+      return;
+    }
+
+    const mapping = getKeyMapping(e.key);
 
     if (e.key === "Backspace" && isPressed) {
       backspace()();
+      return;
     }
 
     if (mapping !== undefined) {
-      setActiveKeys((prev) => ({
+      setKeyStates((prev) => ({
         left:
           mapping.hand === "left"
             ? { ...prev.left, [mapping.key]: isPressed }
@@ -156,44 +180,28 @@ export const keyboardEvents = (
   });
 };
 
-type KeyMapping = Record<string, keyof KeyStates>;
-
-const keyboardMap: LeftRightRecord<KeyMapping> = {
-  left: {
-    a: "little",
-    s: "ring",
-    d: "middle",
-    f: "index",
-    " ": "thumb",
-  },
-  right: {
-    Unidentified: "thumb",
-    j: "index",
-    k: "middle",
-    l: "ring",
-    "~": "little",
-  },
-};
+type KeyMapping = Record<keyof KeysSymbols, string>;
 
 export const getKeyMapping = (
   key: string
 ):
-  | { hand: keyof LeftRightRecord<KeyMapping>; key: keyof KeyStates }
+  | { hand: keyof LeftRightRecord<KeyMapping>; key: keyof KeysSymbols }
   | undefined => {
-  const { left, right } = keyboardMap;
-  const pressedKeyLeft = Object.keys(left).find((k) => k === key);
-  const pressedKeyRight = Object.keys(right).find((k) => k === key);
+  let res;
 
-  if (pressedKeyLeft) {
-    return { hand: "left", key: left[pressedKeyLeft] };
-  }
-  if (pressedKeyRight) {
-    return { hand: "right", key: right[pressedKeyRight] };
-  }
+  Object.values(keymap).forEach((part, idx) => {
+    const keys = Object.keys(part) as Array<keyof KeysData<string>>;
+    const pressed = keys.find((k) => part[k] === key);
+    if (pressed) {
+      res = { hand: idx === 0 ? "left" : "right", key: pressed };
+    }
+  });
+
+  return res;
 };
 
-export const getPatternFromKeyStates = (states: KeyStates) => {
-  const { index, middle, ring, little } = states;
+export const getPatternFromKeyState = (state: KeysState) => {
+  const { index, middle, ring, little } = state;
   const pattern = [index, middle, ring, little]
     .map((s) => (s ? "1" : "0"))
     .join("");

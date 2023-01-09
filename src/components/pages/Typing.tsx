@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { Component, createEffect, createSignal, For, on } from "solid-js";
 import { getText } from "../../data/text";
 import Refresh from "../../assets/refresh.svg";
+import Edit from "../../assets/edit.svg";
 import Tempo from "../../assets/tempo.svg";
 import HandsSwitch from "../../assets/hands-switch.svg";
 import { Toggle } from "../blocks/Toggle";
@@ -9,8 +10,14 @@ import { DigitalSlider } from "../blocks/DigitalSlider";
 import { setSettings, settings } from "../../data/settings";
 import { LeftRightBothToggle } from "../blocks/LeftRightBothToggle";
 import { IconButton } from "../blocks/IconButton";
-import styles from "./Typing.module.css";
 import { LeftRightBoth } from "../../types/util";
+import {
+  isKeymapBeingEdited,
+  keyToEdit,
+  setIsKeymapBeingEdited,
+  setKeyToEdit,
+} from "../../data/keymap";
+import styles from "./Typing.module.css";
 
 const NBSP = " ";
 
@@ -161,6 +168,23 @@ export const Typing: Component<TypingProps> = (props) => {
           />
         </div>
         <div class={styles.right}>
+          {isKeymapBeingEdited() && (
+            <div class={styles.hint}>
+              {!keyToEdit()
+                ? "Какую клавишу переназначить?"
+                : "Введи новую на клавиатуре"}
+            </div>
+          )}
+          <IconButton
+            icon={Edit}
+            isActive={isKeymapBeingEdited()}
+            onClick={() => {
+              if (isKeymapBeingEdited()) {
+                setKeyToEdit(undefined);
+              }
+              setIsKeymapBeingEdited(!isKeymapBeingEdited());
+            }}
+          />
           <DigitalSlider
             value={settings.keyScanFrequency}
             onChange={(v) => setSettings("keyScanFrequency", v)}
