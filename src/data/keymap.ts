@@ -13,11 +13,11 @@ const defaultKeymap: KeymapStore = {
     little: "a",
   },
   right: {
-    thumb: "Unidentified",
+    thumb: " ",
     index: "j",
     middle: "k",
     ring: "l",
-    little: "~",
+    little: ";",
   },
 };
 

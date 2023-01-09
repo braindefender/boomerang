@@ -23,6 +23,7 @@ import {
   KeysData,
   KeysState,
   KeysSymbols,
+  LeftRightBoth,
   LeftRightRecord,
 } from "../../types/util";
 import { Keyboard } from "../blocks/Keyboard";
@@ -110,17 +111,22 @@ export const keyboardEvents = (
       if (settings.leftRightBoth === "both") {
         if (settings.shouldSwitchHands) {
           watchFor = [keyStates()[currentHand()]];
+        } else {
+          watchFor = [keyStates().left, keyStates().right];
         }
-        watchFor = [keyStates().left, keyStates().right];
       } else {
         watchFor = [keyStates()[settings.leftRightBoth]];
       }
-
-      watchFor.forEach((part) =>
-        Object.values(part).some(Boolean)
-          ? makeOnInput()(getSymbol(part))
-          : undefined
-      );
+      let symbol: string | undefined = undefined;
+      watchFor.forEach((part) => {
+        if (Object.values(part).some(Boolean)) {
+          symbol =
+            symbol === undefined || symbol === " " ? getSymbol(part) : symbol;
+        }
+      });
+      if (symbol !== undefined) {
+        makeOnInput()(symbol);
+      }
     }, settings.keyScanFrequency)
   );
 
@@ -143,9 +149,7 @@ export const keyboardEvents = (
     if (isKeymapBeingEdited()) {
       const key = keyToEdit();
       if (isPressed && key !== undefined) {
-        console.log("test", e.key);
         setKeymap(key.half, key.key, e.key);
-        console.log("pes", keymap.right.index);
       }
       return;
     }
@@ -160,11 +164,11 @@ export const keyboardEvents = (
     if (mapping !== undefined) {
       setKeyStates((prev) => ({
         left:
-          mapping.hand === "left"
+          mapping.hand === "left" || mapping.hand === "both"
             ? { ...prev.left, [mapping.key]: isPressed }
             : prev.left,
         right:
-          mapping.hand === "right"
+          mapping.hand === "right" || mapping.hand === "both"
             ? { ...prev.right, [mapping.key]: isPressed }
             : prev.right,
       }));
@@ -180,20 +184,19 @@ export const keyboardEvents = (
   });
 };
 
-type KeyMapping = Record<keyof KeysSymbols, string>;
+type KeyMapping = { hand: LeftRightBoth; key: keyof KeysSymbols };
 
-export const getKeyMapping = (
-  key: string
-):
-  | { hand: keyof LeftRightRecord<KeyMapping>; key: keyof KeysSymbols }
-  | undefined => {
-  let res;
+export const getKeyMapping = (key: string): KeyMapping | undefined => {
+  let res: KeyMapping | undefined = undefined;
 
   Object.values(keymap).forEach((part, idx) => {
     const keys = Object.keys(part) as Array<keyof KeysData<string>>;
     const pressed = keys.find((k) => part[k] === key);
     if (pressed) {
-      res = { hand: idx === 0 ? "left" : "right", key: pressed };
+      res = {
+        hand: res !== undefined ? "both" : idx === 0 ? "left" : "right",
+        key: pressed,
+      };
     }
   });
 
